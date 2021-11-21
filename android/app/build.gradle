@@ -1,3 +1,7 @@
+plugins {
+    id 'kotlin-android'
+}
+
 apply plugin: "com.android.application"
 
 import com.android.build.OutputFile
@@ -215,6 +219,9 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
 // Run this once to be able to run the application with BUCK
