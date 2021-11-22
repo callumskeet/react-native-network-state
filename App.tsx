@@ -8,7 +8,7 @@
  * @format
  */
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   SafeAreaView,
   ScrollView,
@@ -20,6 +20,39 @@ import {
 } from 'react-native'
 
 import { Colors } from 'react-native/Libraries/NewAppScreen'
+import {
+  getNetworkState,
+  getNetworkTransport,
+  addNetworkListener,
+} from './NetworkModule'
+
+const Section: React.FC<{
+  title: string
+}> = ({ children, title }) => {
+  const isDarkMode = useColorScheme() === 'dark'
+  return (
+    <View style={styles.sectionContainer}>
+      <Text
+        style={[
+          styles.sectionTitle,
+          {
+            color: isDarkMode ? Colors.white : Colors.black,
+          },
+        ]}>
+        {title}
+      </Text>
+      <Text
+        style={[
+          styles.sectionDescription,
+          {
+            color: isDarkMode ? Colors.light : Colors.dark,
+          },
+        ]}>
+        {children}
+      </Text>
+    </View>
+  )
+}
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark'
@@ -27,6 +60,33 @@ const App = () => {
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   }
+
+  const [networkState, setNetworkState] = useState<any>()
+  const [networkInfo, setNetworkInfo] = useState<any>()
+
+  // useEffect(() => {
+  //   const updateNetworkState = async () => {
+  //     try {
+  //       const newNetworkState = await getNetworkState()
+  //       const newNetworkInfo = await getNetworkTransport()
+  //       setNetworkState(newNetworkState)
+  //       setNetworkInfo(newNetworkInfo)
+  //     } catch (error) {
+  //       console.warn(error)
+  //     }
+  //   }
+
+  //   const interval = setInterval(() => updateNetworkState(), 2000)
+  //   return () => clearInterval(interval)
+  // }, [])
+
+  useEffect(() => {
+    const subscription = addNetworkListener(event => {
+      console.log(event)
+      setNetworkState(event)
+    })
+    return () => subscription.remove()
+  }, [])
 
   return (
     <SafeAreaView style={backgroundStyle}>
@@ -38,7 +98,10 @@ const App = () => {
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
-          <Text>Test</Text>
+          <Section title="Instantaneous network check">
+            <Text>{JSON.stringify(networkState, null, 2)}</Text>
+            <Text>{JSON.stringify(networkInfo, null, 2)}</Text>
+          </Section>
         </View>
       </ScrollView>
     </SafeAreaView>
